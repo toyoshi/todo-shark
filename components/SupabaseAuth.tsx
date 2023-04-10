@@ -17,7 +17,7 @@ const SupabaseAuth = () => {
     if (error) {
       setMessage("エラー: " + error.message);
     } else {
-      setMessage("メールを確認してください");
+      setMessage("メール送信しました");
     }
     setLoading(false);
   };
