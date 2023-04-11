@@ -2,7 +2,13 @@
 import { useState } from 'react';
 import { Task, updateTask, deleteTask } from '../lib/tasks';
 import { updateTaskStatus } from '../lib/tasks';
-
+import {
+  TimeRecord,
+  createTimeRecord,
+  getTimeRecordsByTaskId,
+  updateTimeRecord,
+  getIncompleteTimeRecordByTaskId,
+} from '../lib/timeRecords';
 
 interface TaskItemProps {
   task: Task;
@@ -26,18 +32,32 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated }) => {
   };
 
   const handleStart = async () => {
+    const start_time = new Date().toISOString();
+    await createTimeRecord(task.id, start_time);
     await updateTaskStatus(task.id, 'in_progress');
     onTaskUpdated();
   };
 
   const handlePause = async () => {
-    await updateTaskStatus(task.id, 'paused');
-    onTaskUpdated();
+    const timeRecords = await getTimeRecordsByTaskId(task.id);
+    const currentTimeRecord = timeRecords.find((record) => !record.end_time);
+    if (currentTimeRecord) {
+      const end_time = new Date().toISOString();
+      await updateTimeRecord(currentTimeRecord.id, { end_time });
+      await updateTaskStatus(task.id, 'not_started');
+      onTaskUpdated();
+    }
   };
 
   const handleComplete = async () => {
-    await updateTaskStatus(task.id, 'completed');
-    onTaskUpdated();
+    const timeRecords = await getTimeRecordsByTaskId(task.id);
+    const currentTimeRecord = timeRecords.find((record) => !record.end_time);
+    if (currentTimeRecord) {
+      const end_time = new Date().toISOString();
+      await updateTimeRecord(currentTimeRecord.id, { end_time });
+      await updateTaskStatus(task.id, 'completed');
+      onTaskUpdated();
+    }
   };
 
   return (
@@ -57,12 +77,6 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated }) => {
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
         {task.estimated_time}
-      </td>
-      <td className="px-6 py-4 whitespace-nowrap">
-        {task.start_time}
-      </td>
-      <td className="px-6 py-4 whitespace-nowrap">
-        {task.end_time}
       </td>
       <td className="py-2 px-4">
       {task.status === 'not_started' && (

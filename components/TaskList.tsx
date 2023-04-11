@@ -28,12 +28,6 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onTaskUpdated }) => {
               <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Estimated Time
               </th>
-              <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Start Time
-              </th>
-              <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                End Time
-              </th>
               <th className="px-6 py-3 bg-gray-50"></th>
               <th className="px-6 py-3 bg-gray-50"></th>
             </tr>
