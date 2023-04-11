@@ -1,41 +1,49 @@
-// pages/index.tsx
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import type { NextPage } from "next";
 import { supabase } from "../lib/supabaseClient";
+import { useUser } from "../lib/hooks";
 import SupabaseAuth from "../components/SupabaseAuth";
+import AddTask from '../components/AddTask';
+import TaskList from '../components/TaskList';
+
 
 const Home: NextPage = () => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { user, loading } = useUser();
+
+  const [tasks, setTasks] = useState([]);
+
+  const fetchTasks = async () => {
+    if (user) {
+      const { data: tasks, error } = await supabase
+        .from("tasks")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("id", { ascending: true });
+
+      if (error) {
+        console.error("Error fetching tasks:", error);
+      } else {
+        setTasks(tasks);
+      }
+    }
+  };
 
   useEffect(() => {
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (session) {
-        setUser(session.user);
-      } else {
-        setUser(null);
-      }
-      setLoading(false);
-    });
-
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
-  }, []);
+    fetchTasks();
+  }, [user]);
 
   if (loading) {
     return <div>Loading...</div>;
   }
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
-      <h1 className="text-3xl font-bold mb-4">Todo Shark</h1>
+    <div className="container mx-auto p-4">
+      <h1 className="text-4xl font-bold mb-8">Todo Shark</h1>
       {user ? (
-        <div>
-          <h2>ログイン成功！</h2>
-          <p>ユーザーID: {user.id}</p>
-          <p>メールアドレス: {user.email}</p>
-        </div>
+        <>
+          <AddTask onTaskAdded={fetchTasks} />
+          <TaskList tasks={tasks} onTaskUpdated={fetchTasks} />
+        </>
       ) : (
         <SupabaseAuth />
       )}
