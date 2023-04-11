@@ -13,7 +13,7 @@ const AddTask: React.FC<AddTaskProps> = ({ onTaskAdded }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (title.trim() === "") return;
-    await addTask({ title: title.trim(), estimated_time: estimatedTime, status: 'todo' });
+    await addTask({ title: title.trim(), estimated_time: estimatedTime, status: 'not_started' });
     setTitle("");
     setEstimatedTime(0);
     onTaskAdded();

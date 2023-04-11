@@ -5,6 +5,7 @@ import { useUser } from "../lib/hooks";
 import SupabaseAuth from "../components/SupabaseAuth";
 import AddTask from '../components/AddTask';
 import TaskList from '../components/TaskList';
+import EstimatedEndTime from '../components/EstimatedEndTime';
 
 
 const Home: NextPage = () => {
@@ -38,10 +39,11 @@ const Home: NextPage = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-4xl font-bold mb-8">Todo Shark</h1>
+      <EstimatedEndTime tasks={tasks} />
       {user ? (
         <>
           <AddTask onTaskAdded={fetchTasks} />
+          
           <TaskList tasks={tasks} onTaskUpdated={fetchTasks} />
         </>
       ) : (

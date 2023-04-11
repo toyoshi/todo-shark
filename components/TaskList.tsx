@@ -35,6 +35,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onTaskUpdated }) => {
                 End Time
               </th>
               <th className="px-6 py-3 bg-gray-50"></th>
+              <th className="px-6 py-3 bg-gray-50"></th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">

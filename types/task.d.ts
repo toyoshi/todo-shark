@@ -1,9 +1,10 @@
-// types/task.d.ts
+// lib/tasks.ts
 export interface Task {
-    id?: number;
-    title: string;
-    completed?: boolean;
-    user_id?: string;
-    created_at?: string;
-    updated_at?: string;
-  }
+  id: number;
+  user_id: string;
+  title: string;
+  estimated_time: number;
+  start_time: string | null;
+  end_time: string | null;
+  status: 'not_started' | 'in_progress' | 'paused' | 'completed';
+}

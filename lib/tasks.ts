@@ -35,3 +35,14 @@ export async function deleteTask(taskId: number) {
     console.error('Error deleting task:', error);
   }
 }
+
+export const updateTaskStatus = async (taskId: number, status: Task['status']) => {
+  const { error } = await supabase
+    .from<Task>('tasks')
+    .update({ status })
+    .eq('id', taskId);
+
+  if (error) {
+    console.error('Error updating task status:', error);
+  }
+};

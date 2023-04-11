@@ -1,6 +1,8 @@
 // components/TaskItem.tsx
 import { useState } from 'react';
 import { Task, updateTask, deleteTask } from '../lib/tasks';
+import { updateTaskStatus } from '../lib/tasks';
+
 
 interface TaskItemProps {
   task: Task;
@@ -23,8 +25,23 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated }) => {
     onTaskUpdated();
   };
 
+  const handleStart = async () => {
+    await updateTaskStatus(task.id, 'in_progress');
+    onTaskUpdated();
+  };
+
+  const handlePause = async () => {
+    await updateTaskStatus(task.id, 'paused');
+    onTaskUpdated();
+  };
+
+  const handleComplete = async () => {
+    await updateTaskStatus(task.id, 'completed');
+    onTaskUpdated();
+  };
+
   return (
-    <tr>      
+    <tr>
       <td className="px-6 py-4 whitespace-nowrap">
         {isEditing ? (
           <input
@@ -47,6 +64,33 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated }) => {
       <td className="px-6 py-4 whitespace-nowrap">
         {task.end_time}
       </td>
+      <td className="py-2 px-4">
+      {task.status === 'not_started' && (
+          <button onClick={handleStart} className="text-green-500">
+            Start
+          </button>
+        )}
+        {task.status === 'paused' && (
+          <button onClick={handleStart} className="text-green-500">
+            Restart
+          </button>
+        )}
+        {task.status === 'in_progress' && (
+          <button onClick={handlePause} className="text-yellow-500">
+            Pause
+          </button>
+        )}
+        {task.status !== 'completed' && (
+          <button onClick={handleComplete} className="text-green-500">
+            Complete
+          </button>
+        )}
+        {task.status === 'completed' && (
+          <button className="">
+            Completed
+          </button>
+        )}
+      </td>
       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
         <button onClick={() => setIsEditing(true)} className="text-blue-500">
           Edit
@@ -56,7 +100,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated }) => {
         </button>
       </td>
     </tr>
-);
+  );
 };
 
 export default TaskItem;
