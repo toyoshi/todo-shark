@@ -6,7 +6,8 @@ import SupabaseAuth from "../components/SupabaseAuth";
 import AddTask from '../components/AddTask';
 import TaskList from '../components/TaskList';
 import EstimatedEndTime from '../components/EstimatedEndTime';
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faGamepad } from "@fortawesome/free-solid-svg-icons";
 
 const Home: NextPage = () => {
   const { user, loading } = useUser();

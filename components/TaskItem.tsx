@@ -9,6 +9,8 @@ import {
   updateTimeRecord,
   getIncompleteTimeRecordByTaskId,
 } from '../lib/timeRecords';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCirclePlay, faCirclePause, faCircleCheck, faEdit, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 
 interface TaskItemProps {
   task: Task;
@@ -79,38 +81,23 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated }) => {
         {task.estimated_time}
       </td>
       <td className="py-2 px-4">
-      {task.status === 'not_started' && (
-          <button onClick={handleStart} className="text-green-500">
-            Start
-          </button>
-        )}
-        {task.status === 'paused' && (
-          <button onClick={handleStart} className="text-green-500">
-            Restart
-          </button>
-        )}
-        {task.status === 'in_progress' && (
-          <button onClick={handlePause} className="text-yellow-500">
-            Pause
-          </button>
-        )}
-        {task.status !== 'completed' && (
-          <button onClick={handleComplete} className="text-green-500">
-            Complete
-          </button>
-        )}
-        {task.status === 'completed' && (
-          <button className="">
-            Completed
-          </button>
-        )}
-      </td>
-      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-        <button onClick={() => setIsEditing(true)} className="text-blue-500">
-          Edit
+        <button onClick={task.status === 'not_started' ? handleStart : handlePause} className={task.status === 'not_started' || task.status === 'paused' ? '' : 'opacity-50 cursor-not-allowed'} disabled={task.status !== 'not_started' && task.status !== 'paused'}>
+          <FontAwesomeIcon icon={task.status === 'not_started' ? faCirclePlay : faCirclePlay} className="mr-2 text-green-500 hover:text-green-600" size="2x" />
         </button>
-        <button onClick={handleDelete} className="ml-4 text-red-500">
-          Delete
+
+
+        <button onClick={handlePause} className={task.status === 'in_progress' ? '' : 'opacity-50 cursor-not-allowed'} disabled={task.status !== 'in_progress'}>
+          <FontAwesomeIcon icon={faCirclePause} className="mr-2 text-yellow-500 hover:text-yellow-600" size="2x" />
+        </button>
+
+        <button onClick={handleComplete} className={task.status !== 'completed' ? '' : 'opacity-50 cursor-not-allowed'} disabled={task.status === 'completed'}>
+          <FontAwesomeIcon icon={faCircleCheck} className="mr-2 text-green-500 hover:text-green-600" size="2x" />
+        </button>
+        <button onClick={() => setIsEditing(true)} className="text-blue-500">
+          <FontAwesomeIcon icon={faEdit} className="ml-4 mr-2 text-gray-500 hover:text-gray-600" size="2x" />
+        </button>
+        <button onClick={handleDelete} className="text-red-500">
+          <FontAwesomeIcon icon={faTrashAlt} className="text-red-500 hover:text-red-600" size="2x" />
         </button>
       </td>
     </tr>
