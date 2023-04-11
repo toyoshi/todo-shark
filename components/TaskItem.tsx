@@ -1,14 +1,16 @@
 // components/TaskItem.tsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Task, updateTask, deleteTask } from '../lib/tasks';
 import { updateTaskStatus } from '../lib/tasks';
+import { useInterval } from '../lib/hooks';
 import {
   TimeRecord,
   createTimeRecord,
   getTimeRecordsByTaskId,
   updateTimeRecord,
   getIncompleteTimeRecordByTaskId,
-} from '../lib/timeRecords';
+  getTotalTimeSpent
+} from '../lib/TimeRecords';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCirclePlay, faCirclePause, faCircleCheck, faEdit, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 
@@ -19,7 +21,9 @@ interface TaskItemProps {
 
 const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [updatedTitle, setUpdatedTitle] = useState(task.title);
+  const [updatedTitle, setUpdatedTitle] = useState(task.title);  
+  const [actualTime, setActualTime] = useState(0);
+  const [isCounting, setIsCounting] = useState(false);
 
   const handleUpdate = async () => {
     if (updatedTitle.trim() === '') return;
@@ -62,6 +66,29 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated }) => {
     }
   };
 
+  const formatTime = (milliseconds: number) => {
+    const totalSeconds = Math.floor(milliseconds / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  useEffect(() => {
+    (async () => {
+      const totalTime = await getTotalTimeSpent(task.id);
+      setActualTime(totalTime);
+      setIsCounting(task.status === 'in_progress');
+    })();
+  }, [task]);
+
+  useInterval(() => {
+    if (isCounting) {
+      setActualTime(actualTime + 1000);
+    }
+  }, 1000);
+
+
   return (
     <tr>
       <td className="px-6 py-4 whitespace-nowrap">
@@ -80,6 +107,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated }) => {
       <td className="px-6 py-4 whitespace-nowrap">
         {task.estimated_time}
       </td>
+      <td className="px-6 py-4 whitespace-nowrap">{formatTime(actualTime)}</td>
       <td className="py-2 px-4">
         <button onClick={task.status === 'not_started' ? handleStart : handlePause} className={task.status === 'not_started' || task.status === 'paused' ? '' : 'opacity-50 cursor-not-allowed'} disabled={task.status !== 'not_started' && task.status !== 'paused'}>
           <FontAwesomeIcon icon={task.status === 'not_started' ? faCirclePlay : faCirclePlay} className="mr-2 text-green-500 hover:text-green-600" size="2x" />

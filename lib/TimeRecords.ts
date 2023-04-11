@@ -59,3 +59,19 @@ export const deleteTimeRecord = async (id: number) => {
 
     return data;
 };
+
+export const getTotalTimeSpent = async (taskId: number): Promise<number> => {
+    const { data: timeRecords, error } = await supabase
+      .from<TimeRecord>('time_records')
+      .select('*')
+      .eq('task_id', taskId);
+  
+    if (error) throw error;
+  
+    return timeRecords.reduce((total, record) => {
+      const startTime = new Date(record.start_time).getTime();
+      const endTime = record.end_time ? new Date(record.end_time).getTime() : Date.now();
+      return total + (endTime - startTime);
+    }, 0);
+  };
+  

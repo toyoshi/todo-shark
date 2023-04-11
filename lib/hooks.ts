@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { supabase } from "./supabaseClient";
 
 export function useUser() {
@@ -33,4 +33,23 @@ export function useUser() {
   }, []);
 
   return { user, loading };
+}
+
+export function useInterval(callback: () => void, delay: number | null) {
+  const savedCallback = useRef<() => void>(() => {});
+
+  useEffect(() => {
+    savedCallback.current = callback;
+  }, [callback]);
+
+  useEffect(() => {
+    const tick = () => {
+      savedCallback.current();
+    };
+
+    if (delay !== null) {
+      const id = setInterval(tick, delay);
+      return () => clearInterval(id);
+    }
+  }, [delay]);
 }
