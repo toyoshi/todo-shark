@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import type { NextPage } from "next";
 import { supabase } from "../lib/supabaseClient";
 import { useUser } from "../lib/hooks";
+import { getVisibleTasks, Task } from '../lib/tasks';
 import SupabaseAuth from "../components/SupabaseAuth";
 import AddTask from '../components/AddTask';
 import TaskList from '../components/TaskList';
@@ -16,17 +17,8 @@ const Home: NextPage = () => {
 
   const fetchTasks = async () => {
     if (user) {
-      const { data: tasks, error } = await supabase
-        .from("tasks")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("id", { ascending: true });
-
-      if (error) {
-        console.error("Error fetching tasks:", error);
-      } else {
-        setTasks(tasks);
-      }
+      const fetchedTasks = await getVisibleTasks(user.id);
+      setTasks(fetchedTasks);
     }
   };
 

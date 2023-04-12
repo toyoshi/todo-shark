@@ -107,7 +107,9 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated }) => {
       <td className="px-6 py-4 text-center whitespace-nowrap">
         {task.estimated_time} <span className="text-gray-500 text-xs">min</span>
       </td>
-      <td className="px-6 py-4 text-center whitespace-nowrap">{formatTime(actualTime)}</td>
+      <td className={`px-6 py-4 text-center whitespace-nowrap ${task.status === 'in_progress' ? 'font-bold' : ''}`}>
+        {formatTime(actualTime)}
+      </td>
       <td className="py-2 px-4 text-right">
         <button
           onClick={task.status === 'not_started' ? handleStart : handlePause}

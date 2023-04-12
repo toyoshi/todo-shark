@@ -1,6 +1,30 @@
 // lib/tasks.ts
 import { Task } from "../types/Task";
 import { supabase } from "./supabaseClient";
+import { isToday } from 'date-fns';
+
+export async function getVisibleTasks(userId: string): Promise<Task[]> {
+  const { data, error } = await supabase
+    .from<Task>('tasks')
+    .select('*')
+    .eq('user_id', userId)
+    .order('id', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching visible tasks:', error);
+    return [];
+  }
+
+  if (!data) {
+    return [];
+  }
+
+  return data.filter(
+    (task) =>
+      task.status !== 'completed' ||
+      (task.created_at && isToday(new Date(task.created_at)))
+  );
+}
 
 export const addTask = async (task: Task) => {
   const {
