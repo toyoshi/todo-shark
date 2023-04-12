@@ -90,7 +90,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated }) => {
 
 
   return (
-    <tr>
+    <tr className={task.status === 'in_progress' ? 'bg-green-100' : task.status === 'completed' ? 'bg-gray-200' : ''}>
       <td className="px-6 py-4 whitespace-nowrap">
         {isEditing ? (
           <input

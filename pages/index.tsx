@@ -43,9 +43,8 @@ const Home: NextPage = () => {
       <EstimatedEndTime tasks={tasks} />
       {user ? (
         <>
-          <AddTask onTaskAdded={fetchTasks} />
-          
           <TaskList tasks={tasks} onTaskUpdated={fetchTasks} />
+          <AddTask onTaskAdded={fetchTasks} />
         </>
       ) : (
         <SupabaseAuth />
