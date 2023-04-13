@@ -11,8 +11,9 @@ import {
   getIncompleteTimeRecordByTaskId,
   getTotalTimeSpent
 } from '../lib/TimeRecords';
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCirclePlay, faCirclePause, faCircleCheck, faEdit, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
+import { fetchChatGptResponse } from "../lib/chatGpt";
+import { getTaskConversations, saveTaskConversations } from '../lib/conversations';
+
 
 interface TaskItemProps {
   task: Task;
@@ -24,6 +25,9 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated }) => {
   const [updatedTitle, setUpdatedTitle] = useState(task.title);
   const [actualTime, setActualTime] = useState(0);
   const [isCounting, setIsCounting] = useState(false);
+  const [chatInput, setChatInput] = useState("");
+  const [chatMessages, setChatMessages] = useState<Array<{ sender: "user" | "gpt"; message: string }>>([]);
+  const [showChat, setShowChat] = useState(false);
 
   const handleUpdate = async () => {
     if (updatedTitle.trim() === '') return;
@@ -74,6 +78,58 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated }) => {
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
 
+  const handleSendMessage = async () => {
+    if (chatInput.trim() === "" || !showChat) return;
+
+    // Add user message to chatMessages
+    setChatMessages((prevMessages) => [...prevMessages, { sender: "user", message: chatInput.trim() }]);
+    setChatInput("");
+
+    // Send user message to ChatGPT and get response (placeholder code)
+    const gptResponse = await fetchChat(chatInput.trim());
+    setChatMessages((prevMessages) => [...prevMessages, { sender: "gpt", message: gptResponse }]);
+  };
+
+  const fetchChat = async (userMessage: string) => {
+    try {
+      // メッセージ履歴を取得
+      let messageHistory = await getTaskConversations(task.id)
+
+      // メッセージ履歴が空の場合、デフォルトのメッセージを追加
+      if (messageHistory.length === 0) {
+        messageHistory = [{
+          role: "system",
+          content: `タスクリストの消化を手助けするコーチです。なぜそのタスクの着手ができないのか、どういう障害があるのかといったことを探りながら、サポートしてあげてください。発言は短い言葉で。今回のタスクは ${task.title}です。`,
+        }];
+      }
+
+      // メッセージ履歴を含めてChatGPT APIを呼び出す
+      const gptResponse = await fetchChatGptResponse(userMessage, messageHistory);
+
+      // データベースに新しい会話を保存
+      messageHistory.push({
+        role: 'user',
+        content: userMessage,
+      })
+
+      messageHistory.push({
+        role: 'assistant',
+        content: gptResponse,
+      })
+
+      await saveTaskConversations(task.id, messageHistory);
+
+      console.log(messageHistory)
+
+      return gptResponse;
+
+    } catch (error) {
+      console.error("Error fetching ChatGPT response:", error);
+      return "Error fetching ChatGPT response. Please check the console for more information.";
+    }
+  };
+
+
   useEffect(() => {
     (async () => {
       const totalTime = await getTotalTimeSpent(task.id);
@@ -90,6 +146,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated }) => {
 
 
   return (
+    <>
     <tr className={task.status === 'in_progress' ? 'bg-green-100' : task.status === 'completed' ? 'bg-gray-200' : ''}>
       <td className="px-6 py-4 whitespace-nowrap">
         {isEditing ? (
@@ -103,6 +160,9 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated }) => {
         ) : (
           <span className="text-gray-800">{task.title}</span>
         )}
+        <button onClick={() => setShowChat(!showChat)} className="bg-transparent hover:bg-gray-500 text-gray-700 hover:text-white py-1 px-2 border border-gray-500 hover:border-transparent rounded">
+          Toggle Chat
+        </button>
       </td>
       <td className="px-6 py-4 text-center whitespace-nowrap">
         {task.estimated_time} <span className="text-gray-500 text-xs">min</span>
@@ -141,6 +201,42 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated }) => {
 
       </td>
     </tr>
+
+{
+    showChat && (
+      <tr>
+        <td colSpan={4}>
+
+          <div className="mt-2">
+            <input
+              type="text"
+              className="border-2 border-gray-300 rounded py-2 px-3 w-full"
+              placeholder="Type your message"
+              value={chatInput}
+              onChange={(e) => setChatInput(e.target.value)}
+            />
+            <button
+              type="button"
+              className="bg-blue-500 text-white px-4 py-2 rounded mt-2"
+              onClick={handleSendMessage}
+            >
+              Send
+            </button>
+            <div className="mt-2 border-2 border-gray-300 rounded py-2 px-3 w-full h-40 overflow-y-auto">
+              {chatMessages.map((msg, index) => (
+                <div key={index} className={`mb-2 ${msg.sender === "user" ? "text-right" : ""}`}>
+                  <span className={msg.sender === "user" ? "text-blue-500" : "text-green-500"}>{msg.sender === "user" ? "You" : "ChatGPT"}:</span> {msg.message}
+                </div>
+              ))
+              }
+            </div>
+
+          </div>
+        </td></tr>
+    )
+
+  }
+  </>
   );
 };
 
