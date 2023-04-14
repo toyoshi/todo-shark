@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import type { NextPage } from "next";
 import { supabase } from "../lib/supabaseClient";
 import { useUser } from "../lib/hooks";
-import { getVisibleTasks, Task } from '../lib/tasks';
+import { Task } from "../types/task";
+import { getVisibleTasks } from '../lib/tasks';
 import SupabaseAuth from "../components/SupabaseAuth";
 import AddTask from '../components/AddTask';
 import TaskList from '../components/TaskList';
@@ -13,11 +14,11 @@ import { faGamepad } from "@fortawesome/free-solid-svg-icons";
 const Home: NextPage = () => {
   const { user, loading } = useUser();
 
-  const [tasks, setTasks] = useState([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
 
   const fetchTasks = async () => {
     if (user) {
-      const fetchedTasks = await getVisibleTasks(user.id);
+      const fetchedTasks: any = await getVisibleTasks(user.id); //TODO: use any
       setTasks(fetchedTasks);
     }
   };

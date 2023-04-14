@@ -3,12 +3,12 @@ import { Task } from "../types/task";
 import { supabase } from "./supabaseClient";
 import { isToday } from 'date-fns';
 
-export async function getVisibleTasks(userId: string): Promise<Task[]> {
+export async function getVisibleTasks(userId: string) {
   const { data, error } = await supabase
-    .from<Task>('tasks')
+    .from('tasks')
     .select('*')
     .eq('user_id', userId)
-    .order('id', { ascending: true });
+    .order('id', { ascending: true } as any);
 
   if (error) {
     console.error('Error fetching visible tasks:', error);
@@ -26,10 +26,15 @@ export async function getVisibleTasks(userId: string): Promise<Task[]> {
   );
 }
 
-export const addTask = async (task: Task) => {
+export const addTask = async (new_task: { title: string; estimated_time: number; status: string; }) => {
   const {
     data: { session },
   } = await supabase.auth.getSession()
+
+  if (!session || !session.user) {
+    throw new Error("User must be authenticated to add tasks.");
+  }
+
   const { user } = session
 
   if (!user) {
@@ -38,7 +43,7 @@ export const addTask = async (task: Task) => {
 
   const { data, error } = await supabase
     .from("tasks")
-    .insert([{ ...task, user_id: user.id }])
+    .insert([{ ...new_task, user_id: user.id }])
     .single();
 
   if (error) {
@@ -47,6 +52,10 @@ export const addTask = async (task: Task) => {
 
   return data;
 };
+
+export function updateTask(task: Task) {
+  // Task を更新するコード
+}
 
 // 既存の関数の後に追加
 export async function deleteTask(taskId: number) {
@@ -62,7 +71,7 @@ export async function deleteTask(taskId: number) {
 
 export const updateTaskStatus = async (taskId: number, status: Task['status']) => {
   const { error } = await supabase
-    .from<Task>('tasks')
+    .from('tasks')
     .update({ status })
     .eq('id', taskId);
 

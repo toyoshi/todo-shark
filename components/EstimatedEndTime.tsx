@@ -1,6 +1,6 @@
 // components/EstimatedEndTime.tsx
 import { useEffect, useState } from 'react';
-import { Task } from '../lib/tasks';
+import { Task } from "../types/task";
 
 interface EstimatedEndTimeProps {
   tasks: Task[];

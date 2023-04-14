@@ -1,8 +1,9 @@
 import { useEffect, useState, useRef } from "react";
 import { supabase } from "./supabaseClient";
+import { User } from '@supabase/supabase-js'
 
 export function useUser() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<null | User>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -10,7 +11,7 @@ export function useUser() {
       if (session) {
         const user = session.user;
         const { data, error } = await supabase.from("users").select("*").eq("id", user.id);
-        if (data.length === 0) {
+        if (data === null || data.length === 0) {
             // 新しいユーザーレコードを作成する
             const { error } = await supabase.from("users").insert([{ id: user.id, email: user.email }]);
             if (error) {

@@ -1,6 +1,6 @@
 import { supabase } from './supabaseClient';
 
-export async function getTaskConversations(taskId: string) {
+export async function getTaskConversations(taskId: number) {
   const { data, error } = await supabase
     .from('conversations')
     .select('messages')
@@ -14,7 +14,7 @@ export async function getTaskConversations(taskId: string) {
   return data ? data.messages : [];
 }
 
-export async function saveTaskConversations(taskId: string, messages: any) {
+export async function saveTaskConversations(taskId: number, messages: any) {
   const { data, error } = await supabase
     .from('conversations')
     .upsert({ task_id: taskId, messages }, { onConflict: 'task_id' }); // 一意性制約に合わせて修正

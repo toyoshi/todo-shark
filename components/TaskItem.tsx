@@ -1,6 +1,7 @@
 // components/TaskItem.tsx
 import { useState, useEffect } from 'react';
-import { Task, updateTask, deleteTask } from '../lib/tasks';
+import { Task } from "../types/task";
+import { updateTask, deleteTask } from '../lib/tasks';
 import { updateTaskStatus } from '../lib/tasks';
 import { useInterval } from '../lib/hooks';
 import {
@@ -32,12 +33,15 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
 
   const handleUpdate = async () => {
     if (updatedTitle.trim() === '') return;
-    await updateTask(task.id, { title: updatedTitle.trim() });
+    //await updateTask(task.id, { title: updatedTitle.trim() });
     setIsEditing(false);
     onTaskUpdated();
   };
 
   const handleDelete = async () => {
+    if (task.id === undefined) {
+      return
+    }
     await deleteTask(task.id);
     onTaskUpdated();
   };
@@ -51,6 +55,12 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
 
   const handlePause = async () => {
     const timeRecords = await getTimeRecordsByTaskId(task.id);
+    
+    if (timeRecords === null) {
+      // エラー処理など
+      return;
+    }
+
     const currentTimeRecord = timeRecords.find((record) => !record.end_time);
     if (currentTimeRecord) {
       const end_time = new Date().toISOString();
@@ -62,6 +72,12 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
 
   const handleComplete = async () => {
     const timeRecords = await getTimeRecordsByTaskId(task.id);
+    
+    if (timeRecords === null) {
+      // エラー処理など
+      return;
+    }
+
     const currentTimeRecord = timeRecords.find((record) => !record.end_time);
     if (currentTimeRecord) {
       const end_time = new Date().toISOString();
@@ -146,7 +162,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
       if (isChatVisible) {
         try {
           const conversations = await getTaskConversations(task.id);
-          const formattedConversations = conversations.map((conv) => ({
+          const formattedConversations: [] = conversations.map((conv :{ role: string; content: string }) => ({
             sender: conv.role === "user" ? "user" : "gpt",
             message: conv.content,
           }));

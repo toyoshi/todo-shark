@@ -11,7 +11,7 @@ export type TimeRecord = {
 
 export async function createTaskTimeRecord(taskId: number) {
   const { data, error } = await supabase
-    .from<TimeRecord>('time_records')
+    .from('time_records')
     .insert([{ task_id: taskId, start_time: new Date() }])
     .single();
   if (error) throw error;
@@ -20,7 +20,7 @@ export async function createTaskTimeRecord(taskId: number) {
 
 export async function updateTaskTimeRecord(id: number, end_time: string) {
   const { data, error } = await supabase
-    .from<TimeRecord>('time_records')
+    .from('time_records')
     .update({ end_time })
     .eq('id', id)
     .single();

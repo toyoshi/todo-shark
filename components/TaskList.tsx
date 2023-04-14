@@ -1,7 +1,6 @@
 // components/TaskList.tsx
 import { useEffect, useState } from 'react';
-import { Table } from "daisyui";
-import { Task } from '../lib/tasks';
+import { Task } from '../types/task';
 import TaskItem from './TaskItem';
 
 interface TaskListProps {
