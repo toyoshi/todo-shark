@@ -23,21 +23,21 @@ const AddTask: React.FC<AddTaskProps> = ({ onTaskAdded }) => {
     <form className="bg-white shadow-md rounded p-6 flex space-x-2 mt-4" onSubmit={handleSubmit}>
       <input
         type="text"
-        className="border-2 border-gray-300 rounded py-2 px-3 w-full"
+        className="input input-primary w-full"
         placeholder="New task"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
       />
       <input
         type="number"
-        className="border-2 border-gray-300 rounded py-2 px-3 w-32"
+        className="input input-primary max-w-xs w-32"
         placeholder="Estimated time"
         value={estimatedTime}
         onChange={(e) => setEstimatedTime(parseInt(e.target.value))}
       />
       <button
         type="submit"
-        className="bg-blue-500 text-white px-4 py-2 rounded"
+        className="btn btn-primary"
       >
         Add
       </button>

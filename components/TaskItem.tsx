@@ -147,96 +147,99 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated }) => {
 
   return (
     <>
-    <tr className={task.status === 'in_progress' ? 'bg-green-100' : task.status === 'completed' ? 'bg-gray-200' : ''}>
-      <td className="px-6 py-4 whitespace-nowrap">
-        {isEditing ? (
-          <input
-            type="text"
-            value={updatedTitle}
-            onChange={(e) => setUpdatedTitle(e.target.value)}
-            onBlur={handleUpdate}
-            className="border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
-          />
-        ) : (
-          <span className="text-gray-800">{task.title}</span>
-        )}
-        <button onClick={() => setShowChat(!showChat)} className="bg-transparent hover:bg-gray-500 text-gray-700 hover:text-white py-1 px-2 border border-gray-500 hover:border-transparent rounded">
-          Toggle Chat
-        </button>
-      </td>
-      <td className="px-6 py-4 text-center whitespace-nowrap">
-        {task.estimated_time} <span className="text-gray-500 text-xs">min</span>
-      </td>
-      <td className={`px-6 py-4 text-center whitespace-nowrap ${task.status === 'in_progress' ? 'font-bold' : ''}`}>
-        {formatTime(actualTime)}
-      </td>
-      <td className="py-2 px-4 text-right">
-        <button
-          onClick={task.status === 'not_started' ? handleStart : handlePause}
-          className={`mr-2 bg-transparent hover:bg-gray-500 text-gray-700 hover:text-white py-1 px-4 border border-gray-500 hover:border-transparent rounded ${task.status === 'not_started' || task.status === 'paused' ? '' : 'opacity-50 cursor-not-allowed'
-            }`}
-          disabled={task.status !== 'not_started' && task.status !== 'paused'}
-        >開始
-        </button>
-        <button
-          onClick={handlePause}
-          className={`mr-2 bg-transparent hover:bg-gray-500 text-gray-700 hover:text-white py-1 px-4 border border-gray-500 hover:border-transparent rounded ${task.status === 'in_progress' ? '' : 'opacity-50 cursor-not-allowed'
-            }`}
-          disabled={task.status !== 'in_progress'}
-        >
-          一時停止
-        </button>
-        <button
-          onClick={handleComplete}
-          className={`mr-2 bg-transparent hover:bg-gray-500 text-gray-700 hover:text-white py-1 px-4 border border-gray-500 hover:border-transparent rounded ${task.status !== 'completed' ? '' : 'opacity-50 cursor-not-allowed'
-            }`}
-          disabled={task.status === 'completed'}
-        >
-          終了
-        </button>
-        <button onClick={handleDelete} className="bg-transparent hover:bg-gray-500 text-gray-700 hover:text-white py-1 px-2 border border-gray-500 hover:border-transparent rounded">
-          削除
-        </button>
-
-
-      </td>
-    </tr>
-
-{
-    showChat && (
-      <tr>
-        <td colSpan={4}>
-
-          <div className="mt-2">
+      <tr className={task.status === 'in_progress' ? 'bg-green-100' : task.status === 'completed' ? 'bg-gray-200' : ''}>
+        <td className="px-6 py-4 whitespace-nowrap">
+          {isEditing ? (
             <input
               type="text"
-              className="border-2 border-gray-300 rounded py-2 px-3 w-full"
-              placeholder="Type your message"
-              value={chatInput}
-              onChange={(e) => setChatInput(e.target.value)}
+              value={updatedTitle}
+              onChange={(e) => setUpdatedTitle(e.target.value)}
+              onBlur={handleUpdate}
+              className="border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
             />
+          ) : (
+            <span className="text-gray-800">{task.title}</span>
+          )}
+          <button onClick={() => setShowChat(!showChat)} className="ml-4">
+            💬
+          </button>
+        </td>
+        <td className="px-6 py-4 text-center whitespace-nowrap">
+          {task.estimated_time} <span className="text-gray-500 text-xs">min</span>
+        </td>
+        <td className={`px-6 py-4 text-center whitespace-nowrap ${task.status === 'in_progress' ? 'font-bold' : ''}`}>
+          {formatTime(actualTime)}
+        </td>
+        <td className="text-right">
+          <div className="flex gap-2 ">
             <button
-              type="button"
-              className="bg-blue-500 text-white px-4 py-2 rounded mt-2"
-              onClick={handleSendMessage}
-            >
-              Send
+              onClick={task.status === 'not_started' ? handleStart : handlePause}
+              className='btn btn-primary btn-sm'
+              disabled={task.status !== 'not_started' && task.status !== 'paused'}
+            >開始
             </button>
-            <div className="mt-2 border-2 border-gray-300 rounded py-2 px-3 w-full h-40 overflow-y-auto">
-              {chatMessages.map((msg, index) => (
-                <div key={index} className={`mb-2 ${msg.sender === "user" ? "text-right" : ""}`}>
-                  <span className={msg.sender === "user" ? "text-blue-500" : "text-green-500"}>{msg.sender === "user" ? "You" : "ChatGPT"}:</span> {msg.message}
-                </div>
-              ))
-              }
-            </div>
-
+            <button
+              onClick={handlePause}
+              className='btn btn-secondary btn-sm'
+              disabled={task.status !== 'in_progress'}
+            >
+              一時停止
+            </button>
+            <button
+              onClick={handleComplete}
+              className='btn btn-accent btn-sm'
+              disabled={task.status === 'completed'}
+            >
+              終了
+            </button>
+            <button onClick={handleDelete} className='btn btn-sm btn-outline btn-warning'>
+              削除
+            </button>
           </div>
-        </td></tr>
-    )
 
-  }
-  </>
+        </td>
+      </tr>
+
+      {
+        showChat && (
+          <tr>
+            <td colSpan={4}>
+
+              <div className="mt-2 w-full">
+                <div className="textarea textarea-bordered w-full whitespace-break-spaces">
+                  {chatMessages.map((msg, index) => (
+                    <div key={index} className={`chat ${msg.sender === "user" ? "chat-end" : "chat-start"}`}>
+                      <div className="chat-bubble">
+                        <span className={msg.sender === "user" ? "text-blue-500" : "text-green-500"}>
+                          {msg.sender === "user" ? "You" : "ChatGPT"}:
+                        </span>{" "}
+                        {msg.message}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <input
+                  type="text"
+                  className="input input-bordered w-full max-w-xs mt-4"
+                  placeholder="Type your message"
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                />
+                <button
+                  type="button"
+                  className="btn btn-primary ml-5"
+                  onClick={handleSendMessage}
+                >
+                  Send
+                </button>
+
+
+              </div>
+            </td></tr>
+        )
+
+      }
+    </>
   );
 };
 
