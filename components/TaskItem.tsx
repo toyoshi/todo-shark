@@ -27,7 +27,6 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
   const [isCounting, setIsCounting] = useState(false);
   const [chatInput, setChatInput] = useState("");
   const [chatMessages, setChatMessages] = useState<Array<{ sender: "user" | "gpt"; message: string }>>([]);
-  const [showChat, setShowChat] = useState(false);
 
   const isChatVisible = task.id === selectedTaskId;
 
@@ -81,8 +80,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
   };
 
   const handleSendMessage = async () => {
-    if (chatInput.trim() === "" || !showChat) return;
-
+    if (chatInput.trim() === "" || !isChatVisible) return;
     // Add user message to chatMessages
     setChatMessages((prevMessages) => [...prevMessages, { sender: "user", message: chatInput.trim() }]);
     setChatInput("");
@@ -101,7 +99,20 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
       if (messageHistory.length === 0) {
         messageHistory = [{
           role: "system",
-          content: `タスクリストの消化を手助けするコーチです。なぜそのタスクの着手ができないのか、どういう障害があるのかといったことを探りながら、サポートしてあげてください。発言は短い言葉で。今回のタスクは ${task.title}です。`,
+          content: `
+            あなたはToDoリストの横に表示されている、タスクの消化を手助けするコーチです。
+            なぜそのタスクの着手ができないのか、どういう障害があるのかといったことを探りながら、サポートしてあげてください。
+            
+            = 条件
+            発言は短い言葉で。
+
+            = こんな観点からサポートしてください
+            ・着手で困っていることは何かありますか？最初のステップから分解しましょう
+            ・勝手に心配や不安から手がつけられてないか
+            ・今日中にやったほうがいいか（明日やると良くないことがあるか）
+            
+            = 今回のタスクの内容
+            ${task.title}`,
         }];
       }
 
@@ -120,8 +131,6 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
       })
 
       await saveTaskConversations(task.id, messageHistory);
-
-      console.log(messageHistory)
 
       return gptResponse;
 
