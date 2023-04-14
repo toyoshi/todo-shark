@@ -32,9 +32,9 @@ const EstimatedEndTime: React.FC<EstimatedEndTimeProps> = ({ tasks }) => {
   }
 
   return (
-    <h1 className="text-4xl font-bold text-center mb-8">
+    <>
       {endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-    </h1>
+    </>
   );
 };
 
