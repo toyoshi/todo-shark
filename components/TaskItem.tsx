@@ -14,13 +14,13 @@ import {
 import { fetchChatGptResponse } from "../lib/chatGpt";
 import { getTaskConversations, saveTaskConversations } from '../lib/conversations';
 
-
 interface TaskItemProps {
   task: Task;
   onTaskUpdated: () => void;
+  selectedTaskId: number | null;
+  onSelectedTaskIdChange: (taskId: number | null) => void;
 }
-
-const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated }) => {
+const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId, onSelectedTaskIdChange }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [updatedTitle, setUpdatedTitle] = useState(task.title);
   const [actualTime, setActualTime] = useState(0);
@@ -28,6 +28,8 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated }) => {
   const [chatInput, setChatInput] = useState("");
   const [chatMessages, setChatMessages] = useState<Array<{ sender: "user" | "gpt"; message: string }>>([]);
   const [showChat, setShowChat] = useState(false);
+
+  const isChatVisible = task.id === selectedTaskId;
 
   const handleUpdate = async () => {
     if (updatedTitle.trim() === '') return;
@@ -131,12 +133,27 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated }) => {
 
 
   useEffect(() => {
-    (async () => {
-      const totalTime = await getTotalTimeSpent(task.id);
-      setActualTime(totalTime);
-      setIsCounting(task.status === 'in_progress');
-    })();
-  }, [task]);
+    const fetchConversations = async () => {
+      if (isChatVisible) {
+        try {
+          const conversations = await getTaskConversations(task.id);
+          const formattedConversations = conversations.map((conv) => ({
+            sender: conv.role === "user" ? "user" : "gpt",
+            message: conv.content,
+          }));
+  
+          setChatMessages(formattedConversations);
+        } catch (error) {
+          console.error("Error fetching task conversations:", error);
+        }
+      } else {
+        setChatMessages([]);
+      }
+    };
+  
+    fetchConversations();
+  }, [isChatVisible, task.id]);
+  
 
   useInterval(() => {
     if (isCounting) {
@@ -160,9 +177,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated }) => {
           ) : (
             <span className="text-gray-800">{task.title}</span>
           )}
-          <button onClick={() => setShowChat(!showChat)} className="ml-4">
-            💬
-          </button>
+          <button onClick={() => onSelectedTaskIdChange(task.id === selectedTaskId ? null : task.id)} className="ml-4">💬</button>
         </td>
         <td className="px-6 py-4 text-center whitespace-nowrap">
           {task.estimated_time} <span className="text-gray-500 text-xs">min</span>
@@ -201,7 +216,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated }) => {
       </tr>
 
       {
-        showChat && (
+        isChatVisible && (
           <tr>
             <td colSpan={4}>
 

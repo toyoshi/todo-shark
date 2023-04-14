@@ -11,6 +11,7 @@ interface TaskListProps {
 
 const TaskList: React.FC<TaskListProps> = ({ tasks, onTaskUpdated }) => {
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
+  const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null); //チャットが開かれているタスク
 
   useEffect(() => {
     setFilteredTasks(tasks);
@@ -37,7 +38,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onTaskUpdated }) => {
           </thead>
           <tbody className="">
             {filteredTasks.map((task) => (
-              <TaskItem key={task.id} task={task} onTaskUpdated={onTaskUpdated} />
+              <TaskItem key={task.id} task={task} onTaskUpdated={onTaskUpdated} selectedTaskId={selectedTaskId} onSelectedTaskIdChange={setSelectedTaskId} />
             ))}
           </tbody>
         </table>
