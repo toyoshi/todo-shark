@@ -51,6 +51,13 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
     await createTimeRecord(task.id, start_time);
     await updateTaskStatus(task.id, 'in_progress');
     onTaskUpdated();
+  
+    // Get the total time spent on this task and set it to actualTime state
+    const totalTimeSpent = await getTotalTimeSpent(task.id);
+    setActualTime(totalTimeSpent);
+  
+    // Start counting up
+    setIsCounting(true);
   };
 
   const handlePause = async () => {
@@ -68,6 +75,9 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
       await updateTaskStatus(task.id, 'not_started');
       onTaskUpdated();
     }
+  
+    // Stop counting up
+    setIsCounting(false);
   };
 
   const handleComplete = async () => {
@@ -85,6 +95,9 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
       await updateTaskStatus(task.id, 'completed');
       onTaskUpdated();
     }
+
+    // Stop counting up
+    setIsCounting(false);
   };
 
   const formatTime = (milliseconds: number) => {
@@ -179,6 +192,14 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
     fetchConversations();
   }, [isChatVisible, task.id]);
   
+  useEffect(() => {
+    const fetchTotalTimeSpent = async () => {
+      const totalTimeSpent = await getTotalTimeSpent(task.id);
+      setActualTime(totalTimeSpent);
+    };
+  
+    fetchTotalTimeSpent();
+  }, [task.status, task.id]);
 
   useInterval(() => {
     if (isCounting) {
@@ -203,6 +224,9 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
             <span className="text-gray-800">{task.title}</span>
           )}
           <button onClick={() => onSelectedTaskIdChange(task.id === selectedTaskId ? null : task.id)} className="ml-4">💬</button>
+          <label htmlFor="chat-drawer" className="drawer-button btn btn-primary">
+            Open Chat
+          </label>
         </td>
         <td className="px-6 py-4 text-center whitespace-nowrap">
           {task.estimated_time} <span className="text-gray-500 text-xs">min</span>
