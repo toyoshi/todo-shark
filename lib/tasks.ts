@@ -1,5 +1,5 @@
 // lib/tasks.ts
-import { Task } from "../types/Task";
+import { Task } from "../types/task";
 import { supabase } from "./supabaseClient";
 import { isToday } from 'date-fns';
 
