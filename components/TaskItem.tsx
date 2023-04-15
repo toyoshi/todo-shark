@@ -210,7 +210,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
 
   return (
     <>
-      <tr className={task.status === 'in_progress' ? 'bg-green-100' : task.status === 'completed' ? 'active' : ''}>
+      <tr className={task.status === 'in_progress' ? 'bg-green-100' : task.status === 'completed' ? 'bg-gray-100' : ''}>
         <td className="px-6 py-4 whitespace-nowrap">
           {isEditing ? (
             <input
@@ -221,7 +221,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
               className="border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
             />
           ) : (
-            <span className="text-gray-800">{task.title}</span>
+            <span>{task.title}</span>
           )}
           <button onClick={() => onSelectedTaskIdChange(task.id === selectedTaskId ? null : task.id)} className="ml-4">💬</button>
         </td>

@@ -17,22 +17,22 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onTaskUpdated }) => {
   }, [tasks]);
 
   return (
-    <div className="bg-white shadow-md rounded p-6">
+    <div className="">
       <h2 className="text-2xl font-semibold mb-4">Tasks</h2>
       {filteredTasks.length > 0 ? (
-        <table className="table w-full">
-          <thead>
+        <table className="w-full text-left">
+          <thead className="uppercase bg-base-200">
             <tr>
-              <th className="tracking-wider">
+              <th className="px-6 py-3">
                 Title
               </th>
-              <th className="">
+              <th className="px-6 py-3">
                 Estimated Time
               </th>
-              <th className="">
+              <th className="px-6 py-3">
                 Time Spent
               </th>
-              <th className=""></th>
+              <th className="px-6 py-3"></th>
             </tr>
           </thead>
           <tbody className="">

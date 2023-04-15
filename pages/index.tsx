@@ -34,14 +34,14 @@ const Home: NextPage = () => {
   }
 
   return (
-    <div className="drawer drawer-end">
-      <input id="chat-drawer" type="checkbox" className="drawer-toggle" />
-      <div className="drawer-content">
-        <div className="container mx-auto p-4">
-          <div className="stats shadow mb-4">
-            <CurrentTime />
-            <EstimatedEndTime tasks={tasks} />
-          </div>
+    <>
+    <div className="text-center">
+      <div className="stats shadow mb-4 my-5 rounded-lg">
+        <CurrentTime />
+        <EstimatedEndTime tasks={tasks} />
+      </div>
+    </div>
+        <div className="container rounded-lg mx-auto h-screen p-4 bg-base-100">
 
           {user ? (
             <>
@@ -51,15 +51,7 @@ const Home: NextPage = () => {
           ) : (
             <SupabaseAuth />
           )}
-        </div>
-      </div>
-      <div className="drawer-side">
-        <label htmlFor="chat-drawer" className="drawer-overlay"></label>
-        <div className="p-4 w-[40rem] bg-base-100 text-base-content">
-          {/* ここにチャットのコンテンツを配置 */}
-        </div>
-      </div>
-    </div>
+        </div></>
   );
 };
 
