@@ -224,9 +224,6 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
             <span className="text-gray-800">{task.title}</span>
           )}
           <button onClick={() => onSelectedTaskIdChange(task.id === selectedTaskId ? null : task.id)} className="ml-4">💬</button>
-          <label htmlFor="chat-drawer" className="drawer-button btn btn-primary">
-            Open Chat
-          </label>
         </td>
         <td className="px-6 py-4 text-center whitespace-nowrap">
           {task.estimated_time} <span className="text-gray-500 text-xs">min</span>

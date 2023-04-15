@@ -9,6 +9,7 @@ import AddTask from '../components/AddTask';
 import TaskList from '../components/TaskList';
 import EstimatedEndTime from '../components/EstimatedEndTime';
 import CurrentTime from '../components/CurrentTime';
+import CurrentDate from "@/components/CurrentDate";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGamepad } from "@fortawesome/free-solid-svg-icons";
 
@@ -37,27 +38,9 @@ const Home: NextPage = () => {
       <input id="chat-drawer" type="checkbox" className="drawer-toggle" />
       <div className="drawer-content">
         <div className="container mx-auto p-4">
-
-
-          
           <div className="stats shadow mb-4">
-            <div className="stat place-items-center">
-              <div className="stat-title">現在時刻</div>
-              <div className="stat-value text-secondary">
-                <CurrentTime />
-              </div>
-              <div className="stat-desc">From January 1st to February 1st</div>
-            </div>
-
-            <div className="stat place-items-center">
-              <div className="stat-title">予定終了時刻</div>
-              <div className="stat-value text-secondary">
-                <EstimatedEndTime tasks={tasks} />
-              </div>
-              <div className="stat-desc">From January 1st to February 1st</div>
-            </div>
-
-
+            <CurrentTime />
+            <EstimatedEndTime tasks={tasks} />
           </div>
 
           {user ? (
