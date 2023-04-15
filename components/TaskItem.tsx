@@ -55,9 +55,6 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
     // Get the total time spent on this task and set it to actualTime state
     const totalTimeSpent = await getTotalTimeSpent(task.id);
     setActualTime(totalTimeSpent);
-  
-    // Start counting up
-    setIsCounting(true);
   };
 
   const handlePause = async () => {
@@ -75,9 +72,6 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
       await updateTaskStatus(task.id, 'not_started');
       onTaskUpdated();
     }
-  
-    // Stop counting up
-    setIsCounting(false);
   };
 
   const handleComplete = async () => {
@@ -95,9 +89,6 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
       await updateTaskStatus(task.id, 'completed');
       onTaskUpdated();
     }
-
-    // Stop counting up
-    setIsCounting(false);
   };
 
   const formatTime = (milliseconds: number) => {
@@ -200,6 +191,10 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
   
     fetchTotalTimeSpent();
   }, [task.status, task.id]);
+
+  useEffect(() => {
+    setIsCounting(task.status === "in_progress");
+  }, [task.status]);
 
   useInterval(() => {
     if (isCounting) {
