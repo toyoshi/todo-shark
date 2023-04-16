@@ -20,7 +20,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onTaskUpdated }) => {
     <div className="">
       <h2 className="text-2xl font-semibold mb-4">Tasks</h2>
       {filteredTasks.length > 0 ? (
-        <table className="w-full text-left">
+        <table className="w-full text-left table-auto">
           <thead className="uppercase bg-base-200">
             <tr>
               <th className="px-6 py-3">

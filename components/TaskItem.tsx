@@ -14,6 +14,7 @@ import {
 } from '../lib/TimeRecords';
 import { fetchChatGptResponse } from "../lib/chatGpt";
 import { getTaskConversations, saveTaskConversations } from '../lib/conversations';
+import { labels } from '../lib/labels';
 
 interface TaskItemProps {
   task: Task;
@@ -202,11 +203,30 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
     }
   }, 1000);
 
+  const renderLabels = () => {
+    if (!task.label_ids) {
+      return null;
+    }
+
+    return task.label_ids.map((labelId) => {
+      const label = labels.find((l) => l.id === labelId);
+      return (
+        label && (
+          <span
+            key={label.id}
+            className={`badge ${label.color}`}
+          >
+            {label.name_short}
+          </span>
+        )
+      );
+    });
+  };
 
   return (
     <>
       <tr className={task.status === 'in_progress' ? 'bg-green-100' : task.status === 'completed' ? 'bg-gray-100' : ''}>
-        <td className="px-6 py-4 whitespace-nowrap">
+        <td className="px-6 py-4 w-2/5">
           {isEditing ? (
             <input
               type="text"
@@ -219,11 +239,16 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
             <span>{task.title}</span>
           )}
           <button onClick={() => onSelectedTaskIdChange(task.id === selectedTaskId ? null : task.id)} className="ml-4">💬</button>
+        
+          <div className="space-x-2 mt-1">
+            {renderLabels()}
+          </div>
+        
         </td>
-        <td className="px-6 py-4 text-center whitespace-nowrap">
+        <td className="px-6 py-4 text-center">
           {task.estimated_time} <span className="text-gray-500 text-xs">min</span>
         </td>
-        <td className={`px-6 py-4 text-center whitespace-nowrap ${task.status === 'in_progress' ? 'font-bold' : ''}`}>
+        <td className={`px-6 py-4 text-center ${task.status === 'in_progress' ? 'font-bold' : ''}`}>
           {formatTime(actualTime)}
         </td>
         <td className="text-right">

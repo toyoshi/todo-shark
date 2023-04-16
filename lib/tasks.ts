@@ -25,17 +25,21 @@ export async function getVisibleTasks(userId: string) {
       (task.created_at && isToday(new Date(task.created_at)))
   );
 }
-
-export const addTask = async (new_task: { title: string; estimated_time: number; status: string; }) => {
+export const addTask = async (new_task: {
+  title: string;
+  estimated_time: number;
+  status: string;
+  label_ids: string[];
+}) => {
   const {
     data: { session },
-  } = await supabase.auth.getSession()
+  } = await supabase.auth.getSession();
 
   if (!session || !session.user) {
     throw new Error("User must be authenticated to add tasks.");
   }
 
-  const { user } = session
+  const { user } = session;
 
   if (!user) {
     throw new Error("User must be authenticated to add tasks.");
