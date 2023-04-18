@@ -25,6 +25,7 @@ interface TaskItemProps {
 const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId, onSelectedTaskIdChange }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [updatedTitle, setUpdatedTitle] = useState(task.title);
+  const [updatedEstimate, setUpdatedEstimate] = useState(task.estimated_time.toString());
   const [actualTime, setActualTime] = useState(0);
   const [isCounting, setIsCounting] = useState(false);
   const [chatInput, setChatInput] = useState("");
@@ -34,7 +35,8 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
 
   const handleUpdate = async () => {
     if (updatedTitle.trim() === '') return;
-    //await updateTask(task.id, { title: updatedTitle.trim() });
+    if (isNaN(parseInt(updatedEstimate)) || parseInt(updatedEstimate) < 0) return;
+    await updateTask(task.id, { title: updatedTitle.trim(), estimated_time: parseInt(updatedEstimate) });
     setIsEditing(false);
     onTaskUpdated();
   };
@@ -52,7 +54,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
     await createTimeRecord(task.id, start_time);
     await updateTaskStatus(task.id, 'in_progress');
     onTaskUpdated();
-  
+
     // Get the total time spent on this task and set it to actualTime state
     const totalTimeSpent = await getTotalTimeSpent(task.id);
     setActualTime(totalTimeSpent);
@@ -60,7 +62,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
 
   const handlePause = async () => {
     const timeRecords = await getTimeRecordsByTaskId(task.id);
-    
+
     if (timeRecords === null) {
       // エラー処理など
       return;
@@ -77,7 +79,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
 
   const handleComplete = async () => {
     const timeRecords = await getTimeRecordsByTaskId(task.id);
-    
+
     if (timeRecords === null) {
       // エラー処理など
       return;
@@ -167,11 +169,11 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
       if (isChatVisible) {
         try {
           const conversations = await getTaskConversations(task.id);
-          const formattedConversations: [] = conversations.map((conv :{ role: string; content: string }) => ({
+          const formattedConversations: [] = conversations.map((conv: { role: string; content: string }) => ({
             sender: conv.role === "user" ? "user" : "gpt",
             message: conv.content,
           }));
-  
+
           setChatMessages(formattedConversations);
         } catch (error) {
           console.error("Error fetching task conversations:", error);
@@ -180,16 +182,16 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
         setChatMessages([]);
       }
     };
-  
+
     fetchConversations();
   }, [isChatVisible, task.id]);
-  
+
   useEffect(() => {
     const fetchTotalTimeSpent = async () => {
       const totalTimeSpent = await getTotalTimeSpent(task.id);
       setActualTime(totalTimeSpent);
     };
-  
+
     fetchTotalTimeSpent();
   }, [task.status, task.id]);
 
@@ -233,20 +235,32 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
               value={updatedTitle}
               onChange={(e) => setUpdatedTitle(e.target.value)}
               onBlur={handleUpdate}
-              className="border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
+              className="border rounded w-[90%] py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
             />
           ) : (
-            <span>{task.title}</span>
+            <span onClick={() => setIsEditing(true)}>{task.title}</span>
           )}
           <button onClick={() => onSelectedTaskIdChange(task.id === selectedTaskId ? null : task.id)} className="ml-4">💬</button>
-        
+
           <div className="space-x-2 mt-1">
             {renderLabels()}
           </div>
-        
+
         </td>
         <td className="px-6 py-4 text-center">
-          {task.estimated_time} <span className="text-gray-500 text-xs">min</span>
+          {isEditing ? (
+            <input
+              type="text"
+              value={updatedEstimate}
+              onChange={(e) => setUpdatedEstimate(e.target.value)}
+              onBlur={handleUpdate}
+              className="border rounded w-16 py-1 px-2 text-gray-700 text-center focus:outline-none focus:shadow-outline"
+            />
+          ) : (
+            <span onClick={() => setIsEditing(true)}>
+              {task.estimated_time} <span className="text-gray-500 text-xs">min</span>
+            </span>
+          )}
         </td>
         <td className={`px-6 py-4 text-center ${task.status === 'in_progress' ? 'font-bold' : ''}`}>
           {formatTime(actualTime)}

@@ -25,6 +25,7 @@ export async function getVisibleTasks(userId: string) {
       (task.created_at && isToday(new Date(task.created_at)))
   );
 }
+
 export const addTask = async (new_task: {
   title: string;
   estimated_time: number;
@@ -57,9 +58,23 @@ export const addTask = async (new_task: {
   return data;
 };
 
-export function updateTask(task: Task) {
-  // Task を更新するコード
+export async function updateTask(taskId: number, data: Partial<Task>): Promise<void> {
+  try {
+    const { error } = await supabase
+      .from('tasks')
+      .update(data)
+      .eq('id', taskId);
+
+    if (error) {
+      console.error(`Error updating task with ID ${taskId}:`, error);
+      throw error;
+    }
+  } catch (error) {
+    console.error(`Error updating task with ID ${taskId}:`, error);
+    throw error;
+  }
 }
+
 
 // 既存の関数の後に追加
 export async function deleteTask(taskId: number) {
