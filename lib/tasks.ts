@@ -19,10 +19,9 @@ export async function getVisibleTasks(userId: string) {
     return [];
   }
 
-  return data.filter(
-    (task) =>
-      task.status !== 'completed' ||
-      (task.created_at && isToday(new Date(task.created_at)))
+  return data.filter((task) =>
+    task.status !== 'completed' ||
+    task.due_date && isToday(new Date(task.due_date))
   );
 }
 
@@ -48,7 +47,11 @@ export const addTask = async (new_task: {
 
   const { data, error } = await supabase
     .from("tasks")
-    .insert([{ ...new_task, user_id: user.id }])
+    .insert([{ 
+      ...new_task, 
+      user_id: user.id,
+      due_date: new Date().toLocaleDateString(undefined, { year: 'numeric', month: '2-digit', day: '2-digit' }),
+     }])
     .single();
 
   if (error) {
