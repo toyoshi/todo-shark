@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Task } from "../types/task";
 import { updateTask, deleteTask } from '../lib/tasks';
 import { updateTaskStatus } from '../lib/tasks';
+import { sendPostRequestToURL } from '../lib/sendPostRequestToURL';
 import { useInterval } from '../lib/hooks';
 import {
   TimeRecord,
@@ -58,6 +59,8 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
     // Get the total time spent on this task and set it to actualTime state
     const totalTimeSpent = await getTotalTimeSpent(task.id);
     setActualTime(totalTimeSpent);
+
+    await sendPostRequestToURL(task);
   };
 
   const handlePause = async () => {
