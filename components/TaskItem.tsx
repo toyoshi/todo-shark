@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Task } from "../types/task";
 import { updateTask, deleteTask } from '../lib/tasks';
 import { updateTaskStatus } from '../lib/tasks';
-import { sendPostRequestToURL } from '../lib/sendPostRequestToURL';
+import { postToWebhook, sendNotify } from '../lib/apiClient';
 import { useInterval } from '../lib/hooks';
 import {
   TimeRecord,
@@ -60,7 +60,8 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
     const totalTimeSpent = await getTotalTimeSpent(task.id);
     setActualTime(totalTimeSpent);
 
-    await sendPostRequestToURL(task);
+    task.status = 'in_progress'; //TODO: メッセージのためにテキストを入れている
+    sendNotify(task);
   };
 
   const handlePause = async () => {
@@ -78,6 +79,9 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
       await updateTaskStatus(task.id, 'not_started');
       onTaskUpdated();
     }
+
+    task.status = 'not_started'; //TODO: メッセージのためにテキストを入れている
+    sendNotify(task);
   };
 
   const handleComplete = async () => {
@@ -95,6 +99,9 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
       await updateTaskStatus(task.id, 'completed');
       onTaskUpdated();
     }
+
+    task.status = 'completed'; //TODO: メッセージのためにテキストを入れている
+    sendNotify(task);
   };
 
   const formatTime = (milliseconds: number) => {
