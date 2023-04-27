@@ -41,6 +41,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onTaskUpdated }) => {
             ))}
           </tbody>
         </table>
+        
       ) : (
         <p className="text-gray-500">No tasks yet.</p>
       )}

@@ -31,8 +31,14 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
   const [isCounting, setIsCounting] = useState(false);
   const [chatInput, setChatInput] = useState("");
   const [chatMessages, setChatMessages] = useState<Array<{ sender: "user" | "gpt"; message: string }>>([]);
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const isChatVisible = task.id === selectedTaskId;
+
+  const handleModalToggle = () => {
+    setIsModalOpen(!isModalOpen);
+  };
 
   const handleUpdate = async () => {
     if (updatedTitle.trim() === '') return;
@@ -97,16 +103,28 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
       const end_time = new Date().toISOString();
       await updateTimeRecord(currentTimeRecord.id, { end_time });
     }
-  
+
     // Get the total time spent on this task and set it to the task
     const totalTimeSpent = await getTotalTimeSpent(task.id);
-    await updateTask(task.id, { actual_time: Math.floor(totalTimeSpent / 1000 / 60) }); // Update the task with the actual time
-  
+
+    // Update the task with the actual time
+    await updateTask(task.id, { actual_time: Math.ceil(totalTimeSpent / 1000 / 60) }); // Update the task with the actual time
     await updateTaskStatus(task.id, 'completed');
     onTaskUpdated();
+    setSelectedTask(task.id);
+  };
 
-    task.status = 'completed'; //TODO: メッセージのためにテキストを入れている
-    sendNotify(task);
+  const handleSave = async () => {
+    // Get the input values
+    const reflection = document.getElementById(`reflection_${task.id}`).value;
+
+    // Save the actual time and reflection for the selected task
+
+    await updateTask(task.id, { reflection: reflection });
+    onTaskUpdated();
+
+    // Close the modal
+    setSelectedTask(null);
   };
 
   const formatTime = (milliseconds: number) => {
@@ -214,6 +232,10 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
     setIsCounting(task.status === "in_progress");
   }, [task.status]);
 
+  useEffect(() => {
+    setIsModalOpen(selectedTask !== null);
+  }, [selectedTask]);
+
   useInterval(() => {
     if (isCounting) {
       setActualTime(actualTime + 1000);
@@ -306,10 +328,35 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
               削除
             </button>
           </div>
+          {isModalOpen && (
+            <>
+              <input
+                type="checkbox"
+                id={`my-modal-${task?.id}`}
+                className="modal-toggle"
+                checked={isModalOpen}
+                onChange={handleModalToggle}
+              />
+              <div className="modal modal-bottom sm:modal-middle text-left">
+                <div className="modal-box">
+                  <h3 className="font-bold text-lg mt-4">Enter a reflection (optional):</h3>
+                  <textarea
+                    id={`reflection_${task?.id}`}
+                    className="input"
+                    rows="4"
+                    placeholder="Your reflection here..."
+                  />
+                  <div className="modal-action">
+                    <button className="btn" onClick={handleSave}>Save</button>
+                    <button className="btn" onClick={() => setSelectedTask(null)}>Close</button>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
 
         </td>
       </tr>
-
       {
         isChatVisible && (
           <tr>
