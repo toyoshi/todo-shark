@@ -125,6 +125,8 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
 
     // Close the modal
     setSelectedTask(null);
+
+    sendNotify(task);
   };
 
   const formatTime = (milliseconds: number) => {
