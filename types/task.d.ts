@@ -4,6 +4,7 @@ export interface Task {
   user_id: string;
   title: string;
   estimated_time: number;
+  actual_time: number;
   start_time: string | null;
   end_time: string | null;
   due_date: string;

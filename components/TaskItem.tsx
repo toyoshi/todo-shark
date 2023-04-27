@@ -96,9 +96,14 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
     if (currentTimeRecord) {
       const end_time = new Date().toISOString();
       await updateTimeRecord(currentTimeRecord.id, { end_time });
-      await updateTaskStatus(task.id, 'completed');
-      onTaskUpdated();
     }
+  
+    // Get the total time spent on this task and set it to the task
+    const totalTimeSpent = await getTotalTimeSpent(task.id);
+    await updateTask(task.id, { actual_time: Math.floor(totalTimeSpent / 1000 / 60) }); // Update the task with the actual time
+  
+    await updateTaskStatus(task.id, 'completed');
+    onTaskUpdated();
 
     task.status = 'completed'; //TODO: メッセージのためにテキストを入れている
     sendNotify(task);
