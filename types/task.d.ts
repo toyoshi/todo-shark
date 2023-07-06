@@ -6,6 +6,7 @@ export interface Task {
   estimated_time: number;
   actual_time: number;
   due_date: string;
+  reflection: string;
   label_ids: string[];
   status: 'not_started' | 'in_progress' | 'paused' | 'completed';
 }

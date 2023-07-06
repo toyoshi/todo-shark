@@ -126,6 +126,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
     // Close the modal
     setSelectedTask(null);
 
+    task.reflection = reflection; //TODO: ここで代入しなくていいようにする
     sendNotify(task);
   };
 
