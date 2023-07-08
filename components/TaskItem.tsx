@@ -33,8 +33,12 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
   const [chatMessages, setChatMessages] = useState<Array<{ sender: "user" | "gpt"; message: string }>>([]);
   const [selectedTask, setSelectedTask] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [audio, setAudio] = useState();
+
 
   const isChatVisible = task.id === selectedTaskId;
+
+  const utterance = new SpeechSynthesisUtterance();
 
   const handleModalToggle = () => {
     setIsModalOpen(!isModalOpen);
@@ -56,6 +60,27 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
     onTaskUpdated();
   };
 
+
+  // This function handles the alternating loop of speech and music
+  function alternateSpeechAndMusic() {
+    // Start by speaking the task
+    utterance.text = task.title;
+    window.speechSynthesis.speak(utterance);
+
+    utterance.lang = 'ja-JP'; // Set the language to Japanese
+    audio.loop = false; // We don't want the audio to loop this time
+    audio.volume = 0.5;
+    // When the speech ends, play the music
+    utterance.onend = () => {
+      audio.play();
+
+      // When the music ends, speak the task again
+      audio.onended = () => {
+        alternateSpeechAndMusic(); // Start the loop again
+      };
+    };
+  }
+
   const handleStart = async () => {
     const start_time = new Date().toISOString();
     await createTimeRecord(task.id, start_time);
@@ -66,8 +91,10 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
     const totalTimeSpent = await getTotalTimeSpent(task.id);
     setActualTime(totalTimeSpent);
 
+    alternateSpeechAndMusic();
+
     task.status = 'in_progress'; //TODO: メッセージのためにテキストを入れている
-    sendNotify(task);
+    //sendNotify(task);
   };
 
   const handlePause = async () => {
@@ -86,8 +113,12 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
       onTaskUpdated();
     }
 
+    if (!audio.paused) {
+      audio.pause();
+    }
+
     task.status = 'not_started'; //TODO: メッセージのためにテキストを入れている
-    sendNotify(task);
+    //sendNotify(task);
   };
 
   const handleComplete = async () => {
@@ -96,6 +127,10 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
     if (timeRecords === null) {
       // エラー処理など
       return;
+    }
+
+    if (!audio.paused) {
+      audio.pause();
     }
 
     const currentTimeRecord = timeRecords.find((record) => !record.end_time);
@@ -201,6 +236,8 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskUpdated, selectedTaskId
 
 
   useEffect(() => {
+    setAudio(new Audio('/background-music/1.wav'));
+
     const fetchConversations = async () => {
       if (isChatVisible) {
         try {
